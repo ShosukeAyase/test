@@ -1,12 +1,370 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    
-    <title>快速HTML網頁</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量子力学 おすすめ教科書ガイド</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Visualization & Content Choices:
+        - Report Intro -> 'はじめに' Section -> Goal: Context -> Presentation: Text -> Interaction: None -> Justification: Standard intro.
+        - Textbook Selection Criteria -> '選び方のポイント' Section -> Goal: Inform criteria -> Presentation: Accordion with Icons -> Interaction: Click to expand -> Justification: Digestible presentation of criteria -> Method: HTML/JS.
+        - 5 Recommended Textbooks (Details) -> 'おすすめ教科書' Section -> Goal: Detailed Info -> Presentation: Clickable Cards opening Modals -> Interaction: Click card, close modal -> Justification: Focused view for each book -> Method: HTML/JS.
+        - Comparison Table -> 'おすすめ教科書' Section -> Goal: Quick Compare -> Presentation: HTML Table (responsive) -> Interaction: None (static) -> Justification: Direct port of effective report table -> Method: HTML.
+        - Learning Advice & Books to Avoid -> '学習アドバイス' Section -> Goal: Provide Tips -> Presentation: Accordion -> Interaction: Click to expand -> Justification: Organized presentation of advice -> Method: HTML/JS.
+        - Report Conclusion -> 'おわりに' Section -> Goal: Conclude -> Presentation: Text -> Interaction: None -> Justification: Standard conclusion.
+        - No Chart.js/Plotly.js as the report's data is primarily qualitative or already well-structured in a table, not requiring dynamic charting.
+    -->
+    <style>
+        .active-tab {
+            border-color: #0ea5e9; /* sky-500 */
+            color: #0ea5e9;
+            font-weight: 600;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-content.open {
+            max-height: 1000px; /* Adjust as needed */
+            transition: max-height 0.5s ease-in;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 0.5rem;
+        }
+        .modal-body {
+             max-height: 70vh;
+             overflow-y: auto;
+        }
+        .prose-custom h3 { margin-top: 1em; margin-bottom: 0.5em; font-size: 1.125em; font-weight:600; }
+        .prose-custom p { margin-bottom: 0.75em; }
+        .prose-custom ul { list-style-position: inside; margin-left: 1em; }
+        .prose-custom li { margin-bottom: 0.25em; }
+    </style>
 </head>
-<body>
-    <h3>Hello</h3>
-    I am Shosuke Yoshida 10805071A
+<body class="bg-slate-50 text-slate-700 font-sans">
+
+    <div class="container mx-auto p-4 max-w-5xl min-h-screen flex flex-col">
+        <header class="mb-6 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-sky-700">量子力学 おすすめ教科書ガイド</h1>
+            <p class="text-md sm:text-lg text-slate-600 mt-1">大学生初学者のためのインタラクティブ選択ガイド</p>
+        </header>
+
+        <nav class="mb-6 sticky top-0 z-40 bg-slate-50 py-2">
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-3 border-b-2 border-slate-200 pb-3">
+                <button data-tab="home" class="tab-button text-sm sm:text-base px-3 py-2 rounded-md border-2 border-transparent hover:bg-sky-100">はじめに</button>
+                <button data-tab="criteria" class="tab-button text-sm sm:text-base px-3 py-2 rounded-md border-2 border-transparent hover:bg-sky-100">選び方のポイント</button>
+                <button data-tab="textbooks" class="tab-button text-sm sm:text-base px-3 py-2 rounded-md border-2 border-transparent hover:bg-sky-100">おすすめ教科書</button>
+                <button data-tab="advice" class="tab-button text-sm sm:text-base px-3 py-2 rounded-md border-2 border-transparent hover:bg-sky-100">学習アドバイス</button>
+                <button data-tab="conclusion" class="tab-button text-sm sm:text-base px-3 py-2 rounded-md border-2 border-transparent hover:bg-sky-100">おわりに</button>
+            </div>
+        </nav>
+
+        <main id="contentArea" class="flex-grow">
+            </main>
+
+        <footer class="mt-10 py-6 text-center text-sm text-slate-500 border-t border-slate-200">
+            <p>&copy; 2025 量子力学教科書ガイド (情報提供元: <span class="font-semibold">量子力学 初学者向け教科書５選レポート</span>)</p>
+        </footer>
+    </div>
+
+    <div id="textbookModal" class="modal">
+        <div class="modal-content prose-custom">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modalTitle" class="text-2xl font-bold text-sky-700"></h2>
+                <button id="closeModal" class="text-3xl font-bold text-slate-500 hover:text-slate-700">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3 class="text-lg font-semibold text-sky-600">概要と特徴</h3>
+                <p id="modalOverview" class="text-sm"></p>
+                <h3 class="text-lg font-semibold text-sky-600 mt-3">長所</h3>
+                <p id="modalStrengths" class="text-sm"></p>
+                <h3 class="text-lg font-semibold text-sky-600 mt-3">第三者レビューのまとめ</h3>
+                <p id="modalReviews" class="text-sm"></p>
+            </div>
+        </div>
+    </div>
+
+<script>
+const textbooksData = [
+    {
+        id: "koide",
+        title: "小出昭一郎『量子力学(I)』",
+        author: "小出昭一郎",
+        tagline: "標準的入門書、数学サポート充実",
+        overview: "日本の多くの大学で長年採用されている標準的な教科書であり、初学者が量子力学を体系的に学ぶ上で最初に手に取る一冊として非常に推奨されます。量子力学の理解に不可欠な線形代数、フーリエ解析、特殊関数論といった数学的知識についても、途中で丁寧に解説が加えられている点が大きな特徴です。各内容について導入の後、例題を解説するというスタイルを採用しており、理論と具体的な問題解決の橋渡しを効果的に行います。",
+        strengths: "数学的な背景知識が不足している学生でも、量子力学の概念と数式を並行して理解しやすい構成になっています。特に、行列表示に関する解説は具体的で分かりやすいと多くの読者から評価されており、量子力学の数学的側面を理解する上で大きな助けとなります。「少ない前提知識で楽に通読できた」というレビューもあり、初学者にとってのアクセシビリティの高さが伺えます。",
+        reviews: "多くのレビューで「初学者にオススメ」「計算が丁寧で読みやすい」「前提知識が少なくても通読しやすい」と高く評価されています。特に、線形代数における行列表示の解説が分かりやすいという声は多く、この点が量子力学の数学的側面を理解する上で大きな助けとなっていることが示唆されます。一方で、一部の発展的な内容（縮退のある摂動や時間変化のある摂動など）については、他の書籍で補う必要性を指摘する声もあります。「数学的サポート付きの標準的入門書」としての地位を確立しています。"
+    },
+    {
+        id: "maeno",
+        title: "前野昌弘『よくわかる量子力学』",
+        author: "前野昌弘",
+        tagline: "概念の壁を破る、徹底解説",
+        overview: "量子力学の学習における最大の障壁の一つである「概念の壁」を乗り越えることに特化した入門書です。初学者が疑問に思いやすい点をFAQ形式や補足説明で徹底的に解説することで、古典的な直感とは異なる量子世界の理解を助けることに主眼を置いています。著者は、「あっ、わかった」という瞬間を読者に提供することを目指して本書を執筆したと述べています。",
+        strengths: "読者が「なぜ？」と感じるであろう抽象的なポイントを先回りして説明し、具体的な例を豊富に用いることで、量子力学の概念を「納得」できるレベルまで引き下げる工夫が凝らされています。このアプローチは、概念的なつまずきを解消する上で非常に効果的です。さらに、著者によるサポートページ（掲示板での質問対応など）が提供されており、独学の学生にとって非常に心強い要素となっています。",
+        reviews: "レビューでは「具体的な説明で納得できる」「丁寧な説明」と高く評価されており、特に概念的なつまずきを解消するのに役立つとされています。本書は厚みがあるものの、その分だけ解説が手厚く、独学で量子力学の基礎を固めたい学生に特に推奨されます。「概念的障壁を打ち破るための橋渡し役」として機能します。"
+    },
+    {
+        id: "harashima",
+        title: "原島鮮『初等量子力学』",
+        author: "原島鮮",
+        tagline: "丁寧な式展開、自習向け古典",
+        overview: "量子力学の教科書として長年の定評があるロングセラーであり、学部学生が押さえておくべき基礎的知識がこの一冊に見事に凝縮されています。著者が自身の学部時代の講義で使用した教科書としても知られ、「教育的配慮に満ちあふれた良書」と評されています。",
+        strengths: "学生が自ら読み進められるよう、説明が非常に詳細で、特に数式の展開が丁寧である点が特徴です。これにより、独学でも理解を深めやすい構成となっています。量子力学の概念と基本的な内容を無理なく一通り学ぶことができるため、「はじめの一冊」として最適と評価されています。",
+        reviews: "レビューでは「親切で丁寧に書かれた本」「式展開が詳細で初学者に最適」という評価が多数見られます。また、「大学2年生までに是非とも読んでおきたい本」という声もあり、基礎固めとしての価値が非常に高いことが示唆されています。小出昭一郎氏の教科書と併読することも推奨されています。「徹底した丁寧さで基礎を固める古典的名著」です。"
+    },
+    {
+        id: "griffiths",
+        title: "David J. Griffiths『Introduction to Quantum Mechanics』",
+        author: "David J. Griffiths",
+        tagline: "現代的アプローチ、英語圏標準",
+        overview: "英語圏で最も広く使われている学部レベルの量子力学教科書の一つです。本書は、線形代数的な側面を強調した現代的なアプローチで記述されており、Amazonでは「Best Seller in Applied Physics」にランクインするなど、非常に高い評価を得ています。",
+        strengths: "著者のGriffiths氏は、読者がつまずきやすい点を熟知しているかのように、完璧なタイミングで導出や追加説明を提供すると評されています。また、問題演習が豊富で、それらを解くことで概念の理解を深めることができます。問題は容易ではないものの、オンラインで解答が提供されている場合もあり、自己学習を強力にサポートします。数学的な厳密さを保ちつつも、概念的な理解を犠牲にしないバランスの取れた記述が特徴で、「直感的な理解」を助けるとも評されています。",
+        reviews: "本書は「自己学習に最適」「明快で簡潔な説明」「数学的展開が丁寧」と非常に高く評価されています。一方で、一部のレビューでは、導出がすべて網羅されているわけではない点や、スピンやフェルミオンの解説が初見では分かりにくい可能性、また問題に多くのトピックが委ねられている点を指摘する声もあります。線形代数、微分方程式、ベクトル解析、電磁気学などの基礎的な数学・物理の知識があることが前提となるため、これらの準備が不十分な場合は、より入門的な教科書から始めることが推奨されます。「厳密さと自己学習を両立する現代のスタンダード」です。"
+    },
+    {
+        id: "baba",
+        title: "馬場敬之『量子力学』（マセマ）",
+        author: "馬場敬之",
+        tagline: "超入門、単位取得サポーター",
+        overview: "「単位取得が危ういので量子力学の基礎をサクッとマスターしたい」という学生向けに特化した、非常に難易度の低い入門書です。本書は、例題を豊富に交えながら、量子力学の基礎を分かりやすく解説するスタイルが特徴で、発展的な問題は扱っていません。難易度は「★☆☆☆☆」、ボリュームも「★☆☆☆☆」と評価されており、手軽に量子力学の基礎に触れられる点が強調されています。",
+        strengths: "発展的な内容は扱わず、基礎に絞って解説されているため、量子力学に苦手意識を持つ学生や、短期間で基礎を習得したい学生でも取り組みやすい構成です。例題中心の構成は、具体的な計算方法や問題の解き方を学ぶ上で非常に有効であり、量子力学への最初の一歩を踏み出す上での心理的障壁を大きく下げます。",
+        reviews: "「量子力学の基本を理解したいアナタにオススメ！」とされており、基礎固めや、短期間で単位取得を目指す場合に特に適しているとされています。網羅性は低いと評価されており、本格的な学習や深い理解を目指す場合には、他の教科書との併用が必須となります。「量子力学への最小限の足がかり」を提供する役割を担います。"
+    }
+];
+
+const sectionsContent = {
+    home: `
+        <div class="bg-white p-6 rounded-lg shadow prose-custom">
+            <h2 class="text-2xl font-bold text-sky-700 mb-4">はじめに：量子力学学習の第一歩を成功させるために</h2>
+            <p class="text-justify">このガイドへようこそ！量子力学の学習は挑戦的ですが、適切な教科書を選ぶことで最初のステップが大きく変わります。ここでは、学習の難しさの背景と、このガイドがどのように役立つかをご紹介します。</p>
+            <p class="text-justify">量子力学は、現代物理学の根幹をなす学問分野であり、その深遠な世界は多くの学生を魅了します。しかし、この分野の学習は、特に大学で初めて学ぶ初学者にとって、非常に高いハードルとなることが少なくありません。その主な理由は、量子力学が古典的な物理学の直感とは大きく異なる抽象的な概念を扱う点と、線形代数、微分方程式、フーリエ解析といった高度な数学的記述を多用する点にあります。この二重の障壁は、多くの学生が学習の途中で挫折してしまう原因となり得ます。</p>
+            <p class="text-justify">量子力学の学習を成功させるためには、これらの困難を乗り越えるための適切な教科書を選ぶことが極めて重要です。適切な教科書は、概念的な理解を促進し、必要な数学的スキルを着実に構築するための道筋を示します。本ガイドでは、大学で量子力学を初めて学ぶ学生が、途中で学習を諦めることなく、その奥深さを理解できるよう、特に配慮された5冊の教科書を厳選し、それぞれの長所と第三者による評価を詳細に解説します。これらの教科書は、異なる学習スタイルや数学的背景を持つ学生に対応できるよう、多様なアプローチを持つものがバランス良く選定されています。</p>
+        </div>
+    `,
+    criteria: `
+        <div class="bg-white p-6 rounded-lg shadow prose-custom">
+            <h2 class="text-2xl font-bold text-sky-700 mb-4">量子力学教科書選びのポイント：初学者が注目すべき点</h2>
+            <p class="text-justify">最適な教科書を見つけるために、いくつかの重要なポイントがあります。ここでは、数学的サポート、概念と数式のバランス、演習問題、独学のしやすさといった、初学者が特に注目すべき点について解説します。各項目をクリックして詳細を確認してください。</p>
+            <div class="space-y-3 mt-4">
+                ${[
+                    { title: "数学的準備の有無と、教科書でのサポート", icon: "📈", content: "量子力学は、その性質上、線形代数、微分積分、フーリエ解析といった数学的な道具を駆使して記述されます。これらの基礎知識が十分に備わっていない場合、教科書がどの程度、必要な数学的な概念を丁寧に解説し、あるいは復習できるセクションを設けているかが、学習の進捗に大きく影響します。数学的なサポートが不足している場合、学生は単に物理学の概念だけでなく、その背景にある数学的言語の理解にも苦しむことになり、学習が停滞する原因となりかねません。" },
+                    { title: "概念的理解と数式展開のバランス", icon: "⚖️", content: "量子力学の学習においては、抽象的な物理概念を直感的に理解することと、それらの概念を具体的な問題に応用し、数式を用いて解く計算能力の両方が求められます。初学者向けの教科書では、この二つの側面がどのようにバランスされているかが重要な選択基準となります。概念的な「なぜ」と、具体的な「どう計算するか」のバランスが取れた教科書は、学生が量子力学の全体像を把握し、かつ実践的なスキルを身につける上で非常に効果的です。" },
+                    { title: "演習問題の質と量", icon: "📝", content: "教科書の内容を真に理解し、知識を定着させるためには、自ら手を動かして問題を解くことが不可欠です。量子力学のような抽象的な学問では、演習問題を通じて概念を具体化し、計算能力を養うことが、理解度を深める唯一の道とも言えます。そのため、教科書に掲載されている演習問題の豊富さ、解答の丁寧さ、そして難易度設定が適切であるかどうかも、重要な判断基準となります。" },
+                    { title: "独学のしやすさと解説の丁寧さ", icon: "💡", content: "大学の講義だけでなく、独学で量子力学を学ぶ学生も少なくありません。このような学生にとって、教科書の解説がどれだけ丁寧で、つまずきやすい点を先回りして説明しているか、FAQ形式や補足説明が充実しているかなどは、学習の継続に大きく寄与します。著者が読者の立場に立ち、共通の疑問点や困難を予測して丁寧に解説する「読者への共感」が感じられる教科書は、独学の成功に大きく貢献します。" }
+                ].map(item => `
+                    <div class="border border-slate-300 rounded-md">
+                        <button class="accordion-trigger w-full flex justify-between items-center p-3 text-left font-semibold text-sky-600 hover:bg-sky-50">
+                            <span><span class="mr-2">${item.icon}</span>${item.title}</span>
+                            <span class="transform transition-transform duration-300 text-sky-500 text-xl">&#x276F;</span>
+                        </button>
+                        <div class="accordion-content px-3 pb-3 text-sm text-slate-600 text-justify">
+                            ${item.content}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `,
+    textbooks: `
+        <div class="bg-white p-6 rounded-lg shadow prose-custom">
+            <h2 class="text-2xl font-bold text-sky-700 mb-4">厳選！大学生初学者向け量子力学教科書5選</h2>
+            <p class="text-justify">ここでは、大学生の初学者のために厳選された5冊の量子力学教科書を詳しく紹介します。各教科書の特徴、長所、レビューを比較検討し、あなたにぴったりの一冊を見つけましょう。詳細な比較表も用意しています。各教科書のカードをクリックすると詳細が表示されます。</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-6">
+                ${textbooksData.map(book => `
+                    <div data-bookid="${book.id}" class="textbook-card cursor-pointer bg-white border border-slate-300 rounded-lg p-4 hover:shadow-lg transition-shadow duration-300 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-sky-700">${book.title}</h3>
+                            <p class="text-xs text-slate-500 mb-1">${book.author}</p>
+                            <p class="text-sm text-slate-600">${book.tagline}</p>
+                        </div>
+                        <button class="mt-3 text-sm text-sky-600 font-semibold hover:underline self-start">詳細を見る &rarr;</button>
+                    </div>
+                `).join('')}
+            </div>
+            <h3 class="text-xl font-bold text-sky-700 mt-8 mb-3">比較表：あなたに最適な一冊を見つけるために</h3>
+            <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="px-4 py-2 text-left font-semibold text-slate-700">書籍名・著者</th>
+                            <th class="px-4 py-2 text-left font-semibold text-slate-700">主な特徴</th>
+                            <th class="px-4 py-2 text-left font-semibold text-slate-700">推奨数学レベル</th>
+                            <th class="px-4 py-2 text-left font-semibold text-slate-700">長所</th>
+                            <th class="px-4 py-2 text-left font-semibold text-slate-700">注意点</th>
+                            <th class="px-4 py-2 text-left font-semibold text-slate-700">こんな人におすすめ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 bg-white">
+                        <tr>
+                            <td class="px-4 py-2 align-top">小出昭一郎『量子力学(I)』</td>
+                            <td class="px-4 py-2 align-top">標準的な入門書、数学的知識を丁寧に統合</td>
+                            <td class="px-4 py-2 align-top">線形代数、フーリエ解析の基礎</td>
+                            <td class="px-4 py-2 align-top">・解説が丁寧で分かりやすい<br>・必要な数学を丁寧に解説<br>・通読しやすい</td>
+                            <td class="px-4 py-2 align-top">・一部発展的内容は他で補う必要あり</td>
+                            <td class="px-4 py-2 align-top">・日本の大学の標準的な講義に沿って学びたい人<br>・数学に不安があるが、基礎からしっかり学びたい人</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-2 align-top">前野昌弘『よくわかる量子力学』</td>
+                            <td class="px-4 py-2 align-top">概念理解に特化、徹底的な分かりやすさ</td>
+                            <td class="px-4 py-2 align-top">高校物理＋α</td>
+                            <td class="px-4 py-2 align-top">・概念的な疑問点を徹底解説<br>・FAQ形式で理解を深める<br>・著者によるサポートあり</td>
+                            <td class="px-4 py-2 align-top">・数学的な厳密性は控えめ<br>・本格的な計算力は別途演習が必要</td>
+                            <td class="px-4 py-2 align-top">・量子力学の概念が難しく感じる人<br>・直感的な理解から入りたい人<br>・独学で丁寧な解説を求める人</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-2 align-top">原島鮮『初等量子力学』</td>
+                            <td class="px-4 py-2 align-top">長年のロングセラー、基礎知識の網羅性</td>
+                            <td class="px-4 py-2 align-top">微分積分、線形代数の基礎</td>
+                            <td class="px-4 py-2 align-top">・説明が非常に詳細で丁寧<br>・数式の展開が詳細<br>・自習に適している</td>
+                            <td class="px-4 py-2 align-top">・図が少ないなど、見た目は地味に感じる可能性あり</td>
+                            <td class="px-4 py-2 align-top">・じっくりと時間をかけて基礎を固めたい人<br>・数式の導出を丁寧に追いたい人<br>・独学で信頼できる一冊を求める人</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-2 align-top">David J. Griffiths『Introduction to Quantum Mechanics』</td>
+                            <td class="px-4 py-2 align-top">現代的なアプローチ、厳密さと明快さの融合</td>
+                            <td class="px-4 py-2 align-top">線形代数、微分方程式、ベクトル解析必須</td>
+                            <td class="px-4 py-2 align-top">・自己学習に最適<br>・概念と数式のバランスが良い<br>・問題演習が豊富で質が高い</td>
+                            <td class="px-4 py-2 align-top">・前提となる数学知識が必要<br>・問題が難しい<br>・一部導出が省略されている箇所あり</td>
+                            <td class="px-4 py-2 align-top">・ある程度の数学的基礎がある人<br>・英語の教科書に抵抗がない人<br>・問題演習を通じて深く理解したい人</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-2 align-top">馬場敬之『量子力学』（マセマ）</td>
+                            <td class="px-4 py-2 align-top">基礎をサクッとマスター、例題中心</td>
+                            <td class="px-4 py-2 align-top">高校数学レベル</td>
+                            <td class="px-4 py-2 align-top">・難易度が非常に低い<br>・例題中心で分かりやすい<br>・短期間で基礎を習得できる</td>
+                            <td class="px-4 py-2 align-top">・網羅性が低い<br>・発展的な内容は扱わない</td>
+                            <td class="px-4 py-2 align-top">・量子力学に苦手意識がある人<br>・単位取得が目的の人<br>・まず全体像をざっくり掴みたい人</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `,
+    advice: `
+        <div class="bg-white p-6 rounded-lg shadow prose-custom">
+            <h2 class="text-2xl font-bold text-sky-700 mb-4">量子力学学習を成功させるための追加アドバイス</h2>
+            <p class="text-justify">良い教科書を選ぶだけでなく、効果的な学習方法を知ることも重要です。ここでは、複数冊の併用、演習問題への取り組み、概念理解と計算力のバランス、そして初学者が避けるべき名著についてのアドバイスをまとめました。各項目をクリックして詳細を確認してください。</p>
+            <div class="space-y-3 mt-4">
+                ${[
+                    { title: "複数冊を併用する学習戦略", content: "量子力学は、その概念の抽象性、数学的記述の多様性、そして物理現象の多岐にわたる側面から、一冊の教科書だけで全てを理解することは非常に困難です。異なる視点や解説方法を持つ複数冊の教科書を併用する学習戦略は、理解を飛躍的に深める上で非常に有効です。それぞれの教科書の強みを活かし、弱点を補い合うことで、より包括的で堅牢な理解を築くことができます。" },
+                    { title: "演習問題に取り組む重要性", content: "教科書を読むことは学習の第一歩ですが、それだけでは量子力学を真に理解したとは言えません。概念を自分のものにし、具体的な物理量を計算できる能力を養うためには、演習問題を自力で解くことが不可欠です。演習を通じて、理論がどのように具体的な状況に適用されるかを理解し、計算力を磨くことで、知識はより強固なものとなります。" },
+                    { title: "概念的理解と計算力の両立", content: "量子力学の学習では、物理現象の背後にある抽象的な概念を理解すること（「概念の壁」）と、具体的な物理量を計算できる数学的なスキル（「数学の壁」）の両方が不可欠です。どちらか一方に偏ることなく、両方をバランス良く習得する意識を持つことが重要です。これら二つの側面は相互に補完し合う関係にあり、概念的な洞察が数学的な定式化を導き、成功した数学的応用が概念的な理解を深めます。" },
+                    { title: "避けるべき「初学者向けではない」名著（例：サクライ、朝永）", content: "J.J. Sakurai氏の『現代の量子力学』や朝永振一郎氏の『量子力学』は、量子力学の分野における「名著」として広く知られています。しかし、これらの書籍は、その学術的な深さと記述の抽象性の高さから、初学者が最初に読むべき教科書ではありません。<br><b>J.J. Sakurai『現代の量子力学』:</b> ブラケット形式から始まる現代的なアプローチで、大学院レベルや2冊目以降に適しています。初学者が最初に読むと挫折する可能性が高いです。<br><b>朝永振一郎『量子力学 I』:</b> 歴史的発展に沿った記述で非常に面白いですが、一通り学んだ後に読むべき本です。初学者には非常にハードルが高いです。<br>これらの「名著」は、まずは初学者向けの教科書で基礎を固めた後に手に取ることを強く推奨します。" }
+                ].map(item => `
+                    <div class="border border-slate-300 rounded-md">
+                        <button class="accordion-trigger w-full flex justify-between items-center p-3 text-left font-semibold text-sky-600 hover:bg-sky-50">
+                            <span>${item.title}</span>
+                            <span class="transform transition-transform duration-300 text-sky-500 text-xl">&#x276F;</span>
+                        </button>
+                        <div class="accordion-content px-3 pb-3 text-sm text-slate-600 text-justify">
+                            ${item.content}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `,
+    conclusion: `
+        <div class="bg-white p-6 rounded-lg shadow prose-custom">
+            <h2 class="text-2xl font-bold text-sky-700 mb-4">結論：量子力学の扉を開くあなたへ</h2>
+            <p class="text-justify">最後に、量子力学の学習を始める皆さんへのメッセージです。このガイドが、挑戦的でありながらも魅力的な量子力学の世界への扉を開く一助となれば幸いです。</p>
+            <p class="text-justify">量子力学は、その難解さゆえに多くの学生が敬遠しがちな分野ですが、同時に現代科学技術の根幹をなし、私たちの世界観を大きく変える魅力的な学問です。適切な教科書を選び、粘り強く学習に取り組むことで、その奥深さを理解し、未知の物理法則を解き明かす喜びを体験することができます。</p>
+            <p class="text-justify">本ガイドで紹介した5冊の教科書は、それぞれ異なるアプローチで量子力学の学習をサポートします。小出昭一郎氏の教科書は数学的サポートが充実した標準的な入門書として、前野昌弘氏の教科書は概念的な理解を深めるための橋渡し役として、原島鮮氏の教科書は詳細な解説で基礎を固める古典的名著として、David J. Griffiths氏の教科書は現代的なアプローチと豊富な演習で深い理解を促す自己学習教材として、そして馬場敬之氏の教科書は量子力学への最小限の足がかりとして、それぞれ異なる学習ニーズに応えます。</p>
+            <p class="text-justify">自身の数学的背景、学習スタイル、そして学習目標に合わせて最適な一冊（または複数冊）を選び、量子力学の扉を開いてみてください。この挑戦的ながらも報われる学習の旅が、読者の皆様にとって実り多いものとなることを心より願っています。</p>
+        </div>
+    `
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const contentArea = document.getElementById('contentArea');
+    const navButtons = document.querySelectorAll('.tab-button');
+    const modal = document.getElementById('textbookModal');
+    const closeModalBtn = document.getElementById('closeModal');
+
+    function displaySection(tabId) {
+        contentArea.innerHTML = sectionsContent[tabId];
+        navButtons.forEach(btn => {
+            btn.classList.toggle('active-tab', btn.dataset.tab === tabId);
+        });
+        
+        if (tabId === 'textbooks') {
+            attachCardListeners();
+        }
+        attachAccordionListeners();
+        window.scrollTo(0, 0); // Scroll to top on new section
+    }
+
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            displaySection(button.dataset.tab);
+        });
+    });
+
+    function attachCardListeners() {
+        const textbookCards = document.querySelectorAll('.textbook-card');
+        textbookCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const bookId = card.dataset.bookid;
+                const book = textbooksData.find(b => b.id === bookId);
+                if (book) {
+                    document.getElementById('modalTitle').textContent = book.title;
+                    document.getElementById('modalOverview').innerHTML = book.overview.replace(/\n/g, '<br>');
+                    document.getElementById('modalStrengths').innerHTML = book.strengths.replace(/\n/g, '<br>');
+                    document.getElementById('modalReviews').innerHTML = book.reviews.replace(/\n/g, '<br>');
+                    modal.style.display = 'block';
+                }
+            });
+        });
+    }
+    
+    closeModalBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    function attachAccordionListeners() {
+        const accordionTriggers = document.querySelectorAll('.accordion-trigger');
+        accordionTriggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const content = trigger.nextElementSibling;
+                const arrow = trigger.querySelector('span.transform');
+                content.classList.toggle('open');
+                arrow.classList.toggle('rotate-90');
+            });
+        });
+    }
+
+    // Initial display
+    displaySection('home');
+});
+</script>
+
 </body>
 </html>
